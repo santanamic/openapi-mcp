@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: WooCommerce REST API (recorte ilustrativo)
+  version: 1.0.0
+servers:
+  - url: https://loja.example/wp-json/wc/v3
+paths:
+  /products:
+    get:
+      operationId: getProducts
+      summary: List products
+      parameters:
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+    post:
+      operationId: createProduct
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [simple, grouped, external, variable]
+                regular_price:
+                  type: string
+      responses:
+        '201':
+          description: Product created
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: Retrieve product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product
+    put:
+      operationId: updateProduct
+      summary: Update product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Product updated
+    delete:
+      operationId: deleteProduct
+      summary: Delete product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Product deleted

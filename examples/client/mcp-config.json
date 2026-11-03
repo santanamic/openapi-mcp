@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "openapi-mcp": {
+      "command": "/absolute/path/to/openapi-mcp",
+      "args": [
+        "--data-dir",
+        "/absolute/path/to/.openapi-mcp"
+      ]
+    }
+  }
+}

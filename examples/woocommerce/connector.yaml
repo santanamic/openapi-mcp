@@ -1,0 +1,27 @@
+id: woocommerce
+name: WooCommerce
+description: WooCommerce REST API
+version: 1.0.0
+
+specification:
+  path: ./openapi.yaml
+
+server:
+  url: https://loja.example/wp-json/wc/v3
+
+authentication:
+  type: basic
+  username: ${WOOCOMMERCE_CONSUMER_KEY}
+  password: ${WOOCOMMERCE_CONSUMER_SECRET}
+
+permissions:
+  methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+
+tools:
+  enabled: true
+  prefix: woocommerce
