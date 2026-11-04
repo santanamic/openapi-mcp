@@ -13,12 +13,16 @@ type Server struct {
 
 // Authentication defines the auth mechanism.
 type Authentication struct {
-	Type     string `yaml:"type"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Value    string `yaml:"value"`
-	Name     string `yaml:"name"`
-	In       string `yaml:"in"`
+	Type         string `yaml:"type"`
+	Username     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	Value        string `yaml:"value"`
+	Name         string `yaml:"name"`
+	In           string `yaml:"in"`
+	RefreshToken string `yaml:"refresh_token"`
+	ClientID     string `yaml:"client_id"`
+	ClientSecret string `yaml:"client_secret"`
+	TokenURL     string `yaml:"token_url"`
 }
 
 // Permissions defines allowed HTTP methods.

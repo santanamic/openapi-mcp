@@ -104,3 +104,16 @@ func (m *Manager) validateAndNormalize(manifest *Manifest) error {
 	
 	return nil
 }
+
+// LoadSingleManifest loads, expands, and validates a single connector.yaml file.
+func LoadSingleManifest(path string) (*Manifest, error) {
+	m := &Manager{}
+	manifest, err := m.loadManifest(path)
+	if err != nil {
+		return nil, err
+	}
+	if err := m.validateAndNormalize(manifest); err != nil {
+		return nil, err
+	}
+	return manifest, nil
+}

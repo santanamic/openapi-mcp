@@ -41,17 +41,23 @@ type Logger struct {
 var globalLogger *Logger
 var once sync.Once
 
-// InitLogger inicializa o logger global direcionando saída exclusivamente para stderr e/ou arquivo no logsDir.
+// InitLogger inicializa o logger global direcionando saída exclusivamente para stderr e/ou arquivo (diretório ou caminho de arquivo explícito).
 // STDOUT NUNCA é utilizado para logs, garantindo integridade do transporte stdio do MCP.
-func InitLogger(logLevel, logsDir string) (*Logger, error) {
+func InitLogger(logLevel, logTarget string) (*Logger, error) {
 	level := parseLevel(logLevel)
 
 	writers := []io.Writer{os.Stderr}
 
 	var logFile *os.File
-	if logsDir != "" {
-		if err := os.MkdirAll(logsDir, 0755); err == nil {
-			filePath := filepath.Join(logsDir, "server.log")
+	if logTarget != "" {
+		var filePath string
+		if strings.HasSuffix(strings.ToLower(logTarget), ".log") || filepath.Ext(logTarget) != "" {
+			filePath = logTarget
+		} else {
+			filePath = filepath.Join(logTarget, "server.log")
+		}
+
+		if err := os.MkdirAll(filepath.Dir(filePath), 0755); err == nil {
 			f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 			if err == nil {
 				logFile = f

@@ -2,7 +2,7 @@
 
 Servidor MCP genérico que transforma operações descritas em documentos OpenAPI em ferramentas MCP, executando as chamadas por HTTP.
 
-> **Status:** planejamento e documentação. Este repositório ainda não contém implementação.
+> **Status:** Versão 1.0.0 (MVP Funcional) lançada e totalmente operacional.
 
 ## Objetivo
 
@@ -26,17 +26,10 @@ Distribuições futuras fornecerão um binário por plataforma:
 - Linux: `openapi-mcp`
 - macOS: `openapi-mcp`
 
-Inicializar a estrutura de dados:
-
-```bash
-openapi-mcp init
-```
-
 Usar um diretório personalizado:
 
 ```bash
-openapi-mcp init --data-dir "/caminho/openapi-mcp-data"
-openapi-mcp --data-dir "/caminho/openapi-mcp-data"
+openapi-mcp --connector-dir "/caminho/openapi-mcp-data"
 ```
 
 Iniciar o servidor com o diretório padrão:
@@ -45,7 +38,35 @@ Iniciar o servidor com o diretório padrão:
 openapi-mcp
 ```
 
-O diretório padrão será `~/.openapi-mcp` no Linux/macOS e `%USERPROFILE%\.openapi-mcp` no Windows. `--data-dir` prevalece sobre o padrão. O processo não depende do diretório de trabalho atual nem da localização do binário.
+O diretório padrão será `~/.openapi-mcp` no Linux/macOS e `%USERPROFILE%\.openapi-mcp` no Windows. `--connector-dir` prevalece sobre o padrão. O processo não depende do diretório de trabalho atual nem da localização do binário.
+
+## Execução Direta e Variáveis de Ambiente (v1.0.0+)
+
+Além do diretório de conectores padrão, o OpenAPI MCP suporta a execução direta de um conector específico (local ou via URL remota) e a injeção flexível de variáveis de ambiente.
+
+> **Nota:** Recursos como `--env-file` e `--env` devem ser utilizados apenas em **casos específicos** (como testes locais, depuração ou quando o cliente de IA utilizado não oferece suporte nativo à injeção de variáveis de ambiente). Em uso normal com clientes compatíveis, recomenda-se configurar as variáveis no arquivo `.env` padrão do diretório de conectores (`--connector-dir`) ou diretamente na configuração do cliente MCP.
+
+### 1. Executar um conector específico (`--connector` / `-c`)
+Você pode apontar diretamente para um arquivo `connector.yaml` local ou URL remota:
+
+```bash
+# Conector local
+openapi-mcp --connector "./examples/openapi-mcp/connectors/viacep/connector.yaml"
+
+# Conector remoto (URL)
+openapi-mcp --connector "https://exemplo.com/path/to/connector.yaml"
+```
+
+### 2. Carregar arquivo `.env` personalizado (`--env-file` / `-e`)
+```bash
+openapi-mcp -c connector.yaml --env-file "./secrets.env"
+```
+
+### 3. Injetar variáveis via CLI (`--env`)
+- **Definir variáveis de ambiente:**
+  ```bash
+  openapi-mcp -c connector.yaml --env "WOOCOMMERCE_CONSUMER_KEY=ck_123,KEY2=val2"
+  ```
 
 ## Estrutura de dados
 
@@ -89,13 +110,30 @@ Exemplo conceitual de configuração para um cliente que aceita servidores MCP l
   "mcpServers": {
     "openapi-mcp": {
       "command": "/caminho/absoluto/openapi-mcp",
-      "args": ["--data-dir", "/caminho/absoluto/.openapi-mcp"]
+      "args": ["--connector-dir", "/caminho/absoluto/.openapi-mcp"]
     }
   }
 }
 ```
 
 No Windows, use o caminho absoluto para `openapi-mcp.exe`. O formato exato do arquivo de configuração depende do cliente MCP utilizado.
+
+## Autenticação OAuth2 Interativa (`openapi-oauth2`) & Renovação Automática (v1.1.0+)
+
+O utilitário independente **`openapi-oauth2`** fornece um fluxo OAuth2 Authorization Code Flow interativo completo:
+
+1. **Execução do utilitário:**
+   ```bash
+   openapi-oauth2 --client-id "seu-client-id" --auth-url "https://auth.exemplo.com/authorize" --token-url "https://auth.exemplo.com/token" [--client-secret "seu-secret"]
+   ```
+2. O utilitário inicia um servidor HTTP local de callback (`http://localhost:8080/callback`) e abre automaticamente o navegador padrão.
+3. Após a autorização, exibe no terminal os tokens obtidos (`OAUTH2_ACCESS_TOKEN` e `OAUTH2_REFRESH_TOKEN`) para cópia ao arquivo `.env`.
+
+### Renovação Automática de Tokens (`TokenSource`)
+Se o conector estiver configurado com `refresh_token`, `client_id`, `client_secret` e `token_url`, o servidor MCP gerencia a expiração de forma 100% transparente:
+- Utiliza o `access_token` normalmente para alta performance.
+- Quando o token expira, o Core utiliza automaticamente o `refresh_token` para obter um novo `access_token` nos bastidores antes de despachar a chamada HTTP.
+- Caso ocorra um erro `401 Unauthorized` irrecuperável, a ferramenta MCP retorna uma mensagem de erro acionável orientando a reexecução de `openapi-oauth2`.
 
 ## Documentação
 

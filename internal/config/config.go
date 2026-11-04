@@ -11,7 +11,7 @@ import (
 
 // Config guarda as configurações gerais da aplicação.
 type Config struct {
-	DataDir       string
+	ConnectorDir  string
 	AppEnv        string
 	AppLogLevel   string
 	McpTransport  string
@@ -21,8 +21,8 @@ type Config struct {
 	envMap        map[string]string
 }
 
-// DefaultDataDir retorna o caminho padrão do diretório de dados (~/.openapi-mcp no Unix, %USERPROFILE%\.openapi-mcp no Windows).
-func DefaultDataDir() (string, error) {
+// DefaultConnectorDir retorna o caminho padrão do diretório de conectores (~/.openapi-mcp no Unix, %USERPROFILE%\.openapi-mcp no Windows).
+func DefaultConnectorDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("falha ao obter diretório home do usuário: %w", err)
@@ -30,14 +30,14 @@ func DefaultDataDir() (string, error) {
 	return filepath.Join(home, ".openapi-mcp"), nil
 }
 
-// ResolveDataDir normaliza e converte em caminho absoluto o diretório de dados fornecido ou padrão.
-func ResolveDataDir(flagDataDir string) (string, error) {
+// ResolveConnectorDir normaliza e converte em caminho absoluto o diretório de conectores fornecido ou padrão.
+func ResolveConnectorDir(flagConnectorDir string) (string, error) {
 	var rawDir string
-	if flagDataDir != "" {
-		rawDir = flagDataDir
+	if flagConnectorDir != "" {
+		rawDir = flagConnectorDir
 	} else {
 		var err error
-		rawDir, err = DefaultDataDir()
+		rawDir, err = DefaultConnectorDir()
 		if err != nil {
 			return "", err
 		}
@@ -49,19 +49,19 @@ func ResolveDataDir(flagDataDir string) (string, error) {
 	return filepath.Clean(absDir), nil
 }
 
-// Load carrega a configuração a partir do diretório de dados especificado.
+// Load carrega a configuração a partir do diretório de conectores especificado.
 // Respeita a precedência:
 // 1. Variáveis no ambiente do processo (os.Getenv)
-// 2. Arquivo .env no diretório de dados
+// 2. Arquivo .env no diretório de conectores
 // 3. Valores padrão
-func Load(dataDir string) (*Config, error) {
-	absDataDir, err := filepath.Abs(dataDir)
+func Load(connectorDir string) (*Config, error) {
+	absConnectorDir, err := filepath.Abs(connectorDir)
 	if err != nil {
-		return nil, fmt.Errorf("diretório de dados inválido: %w", err)
+		return nil, fmt.Errorf("diretório de conectores inválido: %w", err)
 	}
 
 	envFileMap := make(map[string]string)
-	dotEnvPath := filepath.Join(absDataDir, ".env")
+	dotEnvPath := filepath.Join(absConnectorDir, ".env")
 
 	if _, err := os.Stat(dotEnvPath); err == nil {
 		parsed, err := parseDotEnv(dotEnvPath)
@@ -72,8 +72,8 @@ func Load(dataDir string) (*Config, error) {
 	}
 
 	cfg := &Config{
-		DataDir: absDataDir,
-		envMap:  make(map[string]string),
+		ConnectorDir: absConnectorDir,
+		envMap:       make(map[string]string),
 	}
 
 	// Carrega todas as chaves do .env no mapa interno
@@ -105,20 +105,20 @@ func Load(dataDir string) (*Config, error) {
 	return cfg, nil
 }
 
-// AbsConnectorsDir resolve o caminho de CONNECTORS_DIR em relação ao DataDir se for relativo.
+// AbsConnectorsDir resolve o caminho de CONNECTORS_DIR em relação ao ConnectorDir se for relativo.
 func (c *Config) AbsConnectorsDir() string {
 	if filepath.IsAbs(c.ConnectorsDir) {
 		return filepath.Clean(c.ConnectorsDir)
 	}
-	return filepath.Clean(filepath.Join(c.DataDir, c.ConnectorsDir))
+	return filepath.Clean(filepath.Join(c.ConnectorDir, c.ConnectorsDir))
 }
 
-// AbsLogsDir resolve o caminho de LOGS_DIR em relação ao DataDir se for relativo.
+// AbsLogsDir resolve o caminho de LOGS_DIR em relação ao ConnectorDir se for relativo.
 func (c *Config) AbsLogsDir() string {
 	if filepath.IsAbs(c.LogsDir) {
 		return filepath.Clean(c.LogsDir)
 	}
-	return filepath.Clean(filepath.Join(c.DataDir, c.LogsDir))
+	return filepath.Clean(filepath.Join(c.ConnectorDir, c.LogsDir))
 }
 
 // GetEnv obtém o valor de uma variável considerando SO > .env.

@@ -1,0 +1,18 @@
+id: viacep
+name: ViaCEP API
+description: Consulta de CEPs do Brasil
+version: "1.0.0"
+
+specification:
+  url: http://localhost/openapi-mcp/examples/openapi-mcp/connectors/viacep/openapi.yaml
+
+server:
+  url: https://viacep.com.br
+
+permissions:
+  methods:
+    - GET
+
+tools:
+  enabled: true
+  prefix: viacep

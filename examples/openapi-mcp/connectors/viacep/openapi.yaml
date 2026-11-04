@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: ViaCEP API
+  version: "1.0.0"
+servers:
+  - url: https://viacep.com.br
+paths:
+  /ws/{cep}/json/:
+    get:
+      operationId: getCep
+      summary: Consulta endereço por CEP
+      description: Consulta dados de endereço para um determinado CEP brasileiro de 8 dígitos.
+      parameters:
+        - name: cep
+          in: path
+          required: true
+          description: CEP a ser consultado (apenas números, 8 dígitos)
+          schema:
+            type: string
+            example: "01001000"
+      responses:
+        '200':
+          description: Endereço encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cep:
+                    type: string
+                  logradouro:
+                    type: string
+                  complemento:
+                    type: string
+                  bairro:
+                    type: string
+                  localidade:
+                    type: string
+                  uf:
+                    type: string
+                  ibge:
+                    type: string
+                  gia:
+                    type: string
+                  ddd:
+                    type: string
+                  siafi:
+                    type: string
+        '400':
+          description: CEP inválido ou formato incorreto

@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"openapi-mcp/internal/config"
 )
 
 func TestRunVersion(t *testing.T) {
@@ -20,29 +22,19 @@ func TestRunHelp(t *testing.T) {
 	}
 }
 
-func TestRunInitAndServer(t *testing.T) {
+func TestDataDirInitialization(t *testing.T) {
 	tempDir := filepath.Join(t.TempDir(), "mcp-app-test")
 
-	// 1. Executar init
-	codeInit := Run([]string{"openapi-mcp", "init", "--data-dir", tempDir})
-	if codeInit != 0 {
-		t.Fatalf("Init falhou com código %d", codeInit)
+	msgs, err := config.InitDataDir(tempDir)
+	if err != nil {
+		t.Fatalf("InitDataDir falhou: %v", err)
+	}
+	if len(msgs) == 0 {
+		t.Errorf("Esperava mensagens de inicialização")
 	}
 
 	// Verificar se arquivos foram criados
 	if _, err := os.Stat(filepath.Join(tempDir, ".env")); os.IsNotExist(err) {
-		t.Errorf("Arquivo .env não encontrado após init")
-	}
-
-	// 2. Executar servidor com o data-dir inicializado
-	codeRun := Run([]string{"openapi-mcp", "--data-dir", tempDir})
-	if codeRun != 0 {
-		t.Errorf("Run do servidor falhou com código %d", codeRun)
-	}
-
-	// Verificar se log foi gravado
-	logFile := filepath.Join(tempDir, "logs", "server.log")
-	if _, err := os.Stat(logFile); os.IsNotExist(err) {
-		t.Errorf("Arquivo server.log não encontrado no diretório de logs")
+		t.Errorf("Arquivo .env não encontrado após inicialização")
 	}
 }

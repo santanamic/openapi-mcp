@@ -6,12 +6,12 @@ import (
 	"testing"
 )
 
-func TestResolveDataDir(t *testing.T) {
+func TestResolveConnectorDir(t *testing.T) {
 	tempDir := t.TempDir()
 
-	resolved, err := ResolveDataDir(tempDir)
+	resolved, err := ResolveConnectorDir(tempDir)
 	if err != nil {
-		t.Fatalf("ResolveDataDir falhou: %v", err)
+		t.Fatalf("ResolveConnectorDir falhou: %v", err)
 	}
 
 	absExpected, _ := filepath.Abs(tempDir)

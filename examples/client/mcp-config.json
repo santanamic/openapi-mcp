@@ -3,7 +3,7 @@
     "openapi-mcp": {
       "command": "/absolute/path/to/openapi-mcp",
       "args": [
-        "--data-dir",
+        "--connector-dir",
         "/absolute/path/to/.openapi-mcp"
       ]
     }

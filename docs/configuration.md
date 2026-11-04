@@ -63,6 +63,8 @@ WOOCOMMERCE_CONSUMER_SECRET=cs_example
 
 O `.env` não sobrescreve uma variável já definida no ambiente do sistema. O carregamento do arquivo deve ser explícito a partir do data-dir.
 
+> **Nota:** Recursos de sobrescrita e arquivos `.env` personalizados devem ser utilizados apenas em **casos específicos** (como testes locais, depuração ou quando o cliente MCP não suporta injeção nativa de variáveis). Em operação normal, prefira o arquivo `.env` padrão no diretório de dados ou a configuração de ambiente nativa do cliente MCP.
+
 ## Expansão de variáveis nos conectores
 
 O Connector Manager resolve placeholders `${VAR}` nos campos de autenticação do manifesto.
